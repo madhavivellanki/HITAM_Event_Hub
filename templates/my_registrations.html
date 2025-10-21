@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4 text-primary">My Registered Events</h1>
+
+{% if events %}
+<div class="list-group">
+    {% for event in events %}
+    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start mb-3 shadow-sm">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1 text-primary">{{ event.title }}</h5>
+            <small class="text-muted">
+                <span class="badge bg-{{ 'success' if event.dynamic_status == 'Ongoing' else 'primary' if event.dynamic_status == 'Upcoming' else 'danger' }}">
+                    {{ event.dynamic_status }}
+                </span>
+            </small>
+        </div>
+        <p class="mb-1">{{ event.description|truncate(100) }}</p>
+        <small class="text-muted">
+            Registered on: {{ event.registration_date }}
+            | Starts: {{ event.start_datetime.strftime('%b %d, %Y at %I:%M %p') }}
+        </small>
+        {% if event.dynamic_status == 'Upcoming' %}
+            <button class="btn btn-sm btn-outline-warning float-end mt-2" disabled>Ticket Sent to Email</button>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">
+    You have not registered for any events yet. Head back to the <a href="{{ url_for('index') }}">Campus Dashboard</a> to find events!
+</div>
+{% endif %}
+{% endblock %}

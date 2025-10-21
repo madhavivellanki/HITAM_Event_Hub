@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">Campus Event Dashboard</h1>
+
+{% set current_user_id = session.get('user_id') %}
+{% set current_user_role = session.get('role') %}
+
+<!-- Student Navigation Link (View Registered Events) -->
+{% if current_user_id and current_user_role == 'student' %}
+<div class="alert alert-info d-flex justify-content-between align-items-center">
+    <span>Welcome back, Student!</span>
+    <a href="{{ url_for('my_registrations') }}" class="btn btn-sm btn-info shadow-sm">
+        View My Registered Events & Feedback ➡️
+    </a>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="text-success border-bottom pb-2">🟢 Ongoing Events (Happening Now)</h2>
+        {% if ongoing %}
+            {% for event in ongoing %}
+            <div class="card event-card ongoing">
+                <div class="card-body">
+                    <h5 class="card-title">{{ event.title }}</h5>
+                    <p class="card-text text-muted">{{ event.description }}</p>
+                    <p class="card-text">
+                        <strong>Time:</strong> {{ event.start_datetime.strftime('%b %d, %I:%M %p') }} - {{ event.end_datetime.strftime('%I:%M %p') }}
+                    </p>
+
+                    <!-- REGISTRATION BUTTON LOGIC -->
+                    {% if not current_user_id or current_user_role != 'student' %}
+                        <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline-primary">Login to Register</a>
+                    {% elif event.is_registered %}
+                        <button class="btn btn-sm btn-success" disabled>Registered! ✅</button>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('register_event', event_id=event.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-success">Register Now</button>
+                        </form>
+                    {% endif %}
+                    
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">No events are currently ongoing!</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h2 class="text-primary border-bottom pb-2">🔵 Upcoming Events</h2>
+        {% if upcoming %}
+            {% for event in upcoming %}
+            <div class="card event-card upcoming">
+                <div class="card-body">
+                    <h5 class="card-title">{{ event.title }}</h5>
+                    <p class="card-text text-muted">{{ event.description }}</p>
+                    <p class="card-text">
+                        <strong>Starts:</strong> {{ event.start_datetime.strftime('%A, %B %d, %Y at %I:%M %p') }}
+                    </p>
+
+                    <!-- REGISTRATION BUTTON LOGIC -->
+                    {% if not current_user_id or current_user_role != 'student' %}
+                        <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline-primary">Login to Register</a>
+                    {% elif event.is_registered %}
+                        <button class="btn btn-sm btn-success" disabled>Registered! ✅</button>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('register_event', event_id=event.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-primary">Register Now</button>
+                        </form>
+                    {% endif %}
+
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">No upcoming events scheduled yet.</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h2 class="text-danger border-bottom pb-2">🔴 Done Events (Past)</h2>
+        {% if done %}
+            {% for event in done %}
+            <div class="card event-card done">
+                <div class="card-body">
+                    <h5 class="card-title">{{ event.title }}</h5>
+                    <p class="card-text text-muted">{{ event.description }}</p>
+                    <p class="card-text">
+                        <small>Held on: {{ event.start_datetime.strftime('%B %d, %Y') }}</small>
+                    </p>
+                    <!-- FEEDBACK BUTTON LOGIC -->
+                    {% if current_user_id and current_user_role == 'student' %}
+                        {% if event.has_feedback %}
+                            <button class="btn btn-sm btn-outline-secondary" disabled>Feedback Submitted</button>
+                        {% else %}
+                            <a href="{{ url_for('submit_feedback', event_id=event.id) }}" class="btn btn-sm btn-warning">Provide Feedback ⭐️</a>
+                        {% endif %}
+                    {% else %}
+                        <button class="btn btn-sm btn-outline-danger" disabled>Event Completed</button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-warning">No past events found.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+
+---

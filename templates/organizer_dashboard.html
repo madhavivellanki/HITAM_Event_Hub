@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">{{ role.capitalize() }} Dashboard</h1>
+
+<div class="card shadow">
+    <div class="card-header bg-light">
+        <h4>Your Events / All Campus Events (Admin)</h4>
+    </div>
+    <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+            {% for event in events %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h5>{{ event.title }}</h5>
+                    <p class="mb-1 text-muted">{{ event.description|truncate(100) }}</p>
+                    <small>Venue: {{ event.venue_name }} | Starts: {{ event.start_datetime.strftime('%b %d, %I:%M %p') }}</small>
+                </div>
+                <div>
+                    <span class="badge bg-{{ 'success' if event.dynamic_status == 'Ongoing' else 'primary' if event.dynamic_status == 'Upcoming' else 'danger' }}">
+                        {{ event.dynamic_status }}
+                    </span>
+                    <span class="badge bg-{{ 'success' if event.status == 'approved' else 'warning' }}">
+                        Approval: {{ event.status.capitalize() }}
+                    </span>
+                    <a href="{{ url_for('edit_event', event_id=event.id) }}" class="btn btn-sm btn-info ms-2">
+                        Manage/Edit ✏️
+                    </a>
+                </div>
+            </li>
+            {% else %}
+            <li class="list-group-item">No events found for your account.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
